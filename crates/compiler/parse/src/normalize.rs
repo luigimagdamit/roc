@@ -1671,6 +1671,7 @@ impl<'a> Normalize<'a> for EPackageName<'a> {
             EPackageName::BadPath(inner_err, _) => {
                 EPackageName::BadPath(inner_err.normalize(arena), Position::zero())
             }
+            EPackageName::IllegalCharacters(_) => EPackageName::IllegalCharacters(Position::zero()),
             EPackageName::Escapes(_) => EPackageName::Escapes(Position::zero()),
             EPackageName::Multiline(_) => EPackageName::Multiline(Position::zero()),
         }

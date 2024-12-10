@@ -19,6 +19,7 @@ use crate::pattern::record_pattern_fields;
 use crate::state::State;
 use crate::string_literal::{self, parse_str_literal};
 use crate::type_annotation;
+use roc_collections::all;
 use roc_module::ident::IdentSuffix;
 use roc_module::symbol::ModuleId;
 use roc_region::all::{Loc, Position, Region};
@@ -1352,7 +1353,19 @@ pub fn package_name<'a>() -> impl Parser<'a, PackageName<'a>, EPackageName<'a>> 
             string_literal::parse_str_literal(),
         )),
         move |_arena, state, progress, text| match text.value {
-            StrLiteral::PlainLine(text) => Ok((progress, PackageName(text), state)),
+            StrLiteral::PlainLine(raw_text) => {
+                let allowlist = vec!['-', '.', '_', '~', ':', '/', '?', '#', '[',']', '@', '!', '$', '&', '(', ')', '*', '+', ',', ';', '=', '%'];
+                if raw_text
+                    .chars()
+                    .any(|ch| !allowlist.contains(&ch) | !ch.is_alphanumeric()) {
+                        // note to self - modify package name to be valid or insecure, then turn it into loading error
+                        Err((progress, EPackageName::IllegalCharacters(text.region.start())))
+                    } else {
+                        Ok((progress, PackageName(raw_text), state))
+                    }
+                
+            },
+            // StrLiteral::PlainLine(text) => Ok((progress, PackageName(text), state)),
             StrLiteral::Line(_) => Err((progress, EPackageName::Escapes(text.region.start()))),
             StrLiteral::Block(_) => Err((progress, EPackageName::Multiline(text.region.start()))),
         },

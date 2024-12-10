@@ -210,6 +210,7 @@ pub enum EPackages<'a> {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum EPackageName<'a> {
     BadPath(EString<'a>, Position),
+    IllegalCharacters(Position),
     Escapes(Position),
     Multiline(Position),
 }
