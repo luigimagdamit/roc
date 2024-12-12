@@ -1,0 +1,9 @@
+---
+source: crates/cli/tests/cli_tests.rs
+assertion_line: 1371
+expression: cli_check_out.normalize_stdout_and_stderr()
+---
+thread 'main' panicked at crates/compiler/load_internal/src/file.rs:2524:17:
+assertion failed: state.dependencies.solved_all()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+

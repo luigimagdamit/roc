@@ -1,0 +1,22 @@
+---
+source: crates/cli/tests/cli_tests.rs
+assertion_line: 321
+expression: cli_test_out.normalize_stdout_and_stderr()
+---
+── UNRECOGNIZED PACKAGE in tests/test-projects/module_imports_pkg/Module.roc ───
+
+This module is trying to import from `pkg`:
+
+3│  import pkg.Foo
+           ^^^^^^^
+
+A lowercase name indicates a package shorthand, but I don't recognize
+this one. Did you mean one of these?
+
+    pf
+
+Note: I'm using the following module to resolve package shorthands:
+
+    /home/luigi/rocfork/roc/main.roc
+
+You can specify a different one with the --main flag.

@@ -50,7 +50,7 @@ use roc_mono::reset_reuse;
 use roc_mono::{drop_specialization, inc_dec};
 use roc_packaging::cache::RocCacheDir;
 use roc_parse::ast::{self, CommentOrNewline, ExtractSpaces, Spaced, ValueDef};
-use roc_parse::header::parse_module_defs;
+use roc_parse::header::{parse_module_defs, PackageName};
 use roc_parse::header::{
     self, AppHeader, ExposedName, HeaderType, ImportsKeywordItem, PackageEntry, PackageHeader,
     PlatformHeader, To,
@@ -3026,19 +3026,32 @@ fn register_package_shorthands<'a>(
                 match PackageMetadata::try_from(url) {
                     Ok(url_metadata) => {
                         // This was a valid URL
-                        let root_module_dir = cache_dir
-                            .join(url_metadata.cache_subdir)
-                            .join(url_metadata.content_hash);
-                        let root_module = root_module_dir.join(
-                            url_metadata
-                                .root_module_filename
-                                .unwrap_or(DEFAULT_MAIN_NAME),
-                        );
-
-                        ShorthandPath::FromHttpsUrl {
-                            root_module_dir,
-                            root_module,
+                        match package_name {
+                            PackageName::Valid(_) => {
+                                let root_module_dir = cache_dir
+                                    .join(url_metadata.cache_subdir)
+                                    .join(url_metadata.content_hash);
+                                let root_module = root_module_dir.join(
+                                    url_metadata
+                                        .root_module_filename
+                                        .unwrap_or(DEFAULT_MAIN_NAME),
+                                );
+    
+                                ShorthandPath::FromHttpsUrl {
+                                    root_module_dir,
+                                    root_module,
+                                }
+                            },
+                            PackageName::Insecure(_) => {
+                                let buf = to_https_problem_report_string(
+                                    url,
+                                    Problem::InvalidUrl(roc_packaging::https::UrlProblem::MisleadingCharacter),
+                                    module_path.to_path_buf(),
+                                );
+                                return Err(LoadingProblem::FormattedReport(buf));
+                            }
                         }
+
                     }
                     Err(url_err) => {
                         let buf = to_https_problem_report_string(

@@ -238,6 +238,7 @@ pub enum Problem {
     FsExtraErr(fs_extra::error::Error),
     HttpErr(reqwest::Error),
     InvalidUrl(UrlProblem),
+
     /// The Content-Length header of the response exceeded max_download_bytes
     DownloadTooBig(u64),
     NotFound,
